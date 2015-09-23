@@ -1,6 +1,9 @@
+extern crate libc;
+
 use ::ffi::{CSvmParameter, KernelType, SvmType};
 use std::default::Default;
 use std::cell::RefCell;
+use self::libc::{c_int};
 
 /// The parameters needed for certain Kernel types.
 #[derive(Debug,Clone,Copy)]
@@ -61,7 +64,7 @@ impl SvmTypeParam {
 /// This is a set of parameters for generating a model. It is a Rust representation of the
 /// C struct svm_parameter, and can be converted into a C struct internally. It is built to be more
 /// "Rustic". The C version has many unimportant and unread fields if certain kernel or parameter
-// types are used, whereas this one only requires you to set the fields necessary
+/// types are used, whereas this one only requires you to set the fields necessary
 /// using the KernelParam and SvmTypeParam fields.
 ///
 /// This will be correctly converted into the C representation, and any potentially shared memory
@@ -70,11 +73,17 @@ impl SvmTypeParam {
 ///
 /// For more information on specific parameters, see the liibsvm documentation.
 pub struct SvmParameter {
+	/// The type of kernel to be used, and its associated parameters.
 	pub kernel_param: KernelParam,
+	/// The type of SVM, and its associated parameters.
 	pub svm_type_param: SvmTypeParam,
+	/// Use the shrinking heuristic.
 	pub shrinking: bool,
+	/// Whether or not to compute probabilities.
 	pub probability: bool,
+	/// The cache size (in MB).
 	pub cache_size: f64,
+	/// The epsilon for the stopping criterion.
 	pub epsilon: f64,
 
 	// This may be a bit confusing. According to the libsvm documentation,
@@ -121,8 +130,8 @@ impl SvmParameter {
 			weight_labels: RefCell::new(None),
 			weights: RefCell::new(None),
 
-			shrinking: crep.shrinking,
-			probability: crep.probability,
+			shrinking: crep.shrinking != 0,
+			probability: crep.probability != 0,
 			cache_size: crep.cache_size,
 			epsilon: crep.eps,
 
@@ -191,8 +200,8 @@ impl SvmParameter {
 			NuSvr{nu} => {c_params.nu = nu},
 		};
 
-		c_params.shrinking = self.shrinking;
-		c_params.probability = self.probability;
+		c_params.shrinking = self.shrinking as c_int;
+		c_params.probability = self.probability as c_int;
 		c_params.cache_size = self.cache_size;
 		c_params.eps = self.epsilon;
 

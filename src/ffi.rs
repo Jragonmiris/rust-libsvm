@@ -47,8 +47,8 @@ pub struct CSvmParameter {
     pub weight: *mut f64,
     pub nu: f64,
     pub p: f64,
-    pub shrinking: bool,
-    pub probability: bool,
+    pub shrinking: c_int,
+    pub probability: c_int,
 }
 
 impl Default for CSvmParameter {
@@ -69,8 +69,8 @@ impl Default for CSvmParameter {
       weight: ptr::null_mut(),
       nu: 0.0,
       p: 0.0,
-      shrinking: false,
-      probability: false,
+      shrinking: false as c_int,
+      probability: false as c_int,
     }
   }
 }
@@ -90,7 +90,7 @@ pub struct CSvmModel {
     pub label: *mut i32,
     pub n_sv: *mut i32,
 
-    pub free_sv: bool,
+    pub free_sv: c_int,
 }
 
 #[link(name = "svm")]
