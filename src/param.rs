@@ -210,7 +210,7 @@ impl SvmParameter {
 
 	fn invalidate_cache(&self) {
 		*self.weight_labels.borrow_mut() = None;
-		*self.weight_labels.borrow_mut() = None;
+		*self.weights.borrow_mut() = None;
 	}
 
 	fn cache_weights(&self, weights: &Vec<Weight>) {

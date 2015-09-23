@@ -131,3 +131,7 @@ extern "C" {
 
     pub fn svm_set_print_string_function(func: extern fn(*const c_char));
 }
+
+pub extern "C" fn no_output(_: *const c_char) {
+
+}
