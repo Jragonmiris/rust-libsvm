@@ -93,13 +93,13 @@ impl DataVec {
 impl Deref for DataVec {
     type Target = Vec<SvmNode>;
 
-    fn deref<'a>(&'a self) -> &'a Self::Target {
+    fn deref(& self) -> &Self::Target {
         &self.v
     }
 }
 
 impl DerefMut for DataVec {
-    fn deref_mut<'a>(&'a mut self) -> &'a mut Self::Target {
+    fn deref_mut(&mut self) -> &mut Self::Target {
         self.is_sorted = false;
         &mut self.v
     }

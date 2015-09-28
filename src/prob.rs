@@ -35,7 +35,7 @@ impl SvmProblem {
 
         let mut raw_x = Vec::with_capacity(x.len());
 
-        for v in x.iter_mut() {
+        for v in &mut x {
             v.resort();
             raw_x.push(v.as_mut_ptr())
         }

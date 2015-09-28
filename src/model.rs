@@ -232,7 +232,7 @@ impl<'a> Drop for SvmModel<'a> {
     }
 }
 
-pub fn model_from_c_rep<'a>(crep: &'a mut CSvmModel, prob: SvmProblem, mut param: SvmParameter) -> SvmModel<'a> {
+pub fn model_from_c_rep(crep: &mut CSvmModel, prob: SvmProblem, mut param: SvmParameter) -> SvmModel {
     ::param::protected::set_in_model(&mut param, true);
 
     SvmModel {
