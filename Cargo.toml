@@ -6,3 +6,5 @@ authors = ["Jeff Juozapaitis <Jragonmiris@gmail.com>"]
 [dependencies]
 libc = "0.1"
 clippy = "*"
+rustc-serialize="0.3"
+tempfile = "1.1.1"

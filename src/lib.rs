@@ -1,5 +1,8 @@
-#![feature(plugin)]
+#![feature(convert,plugin)]
 #![plugin(clippy)]
+extern crate rustc_serialize;
+extern crate tempfile;
+
 mod datavec;
 mod prob;
 mod ffi; 

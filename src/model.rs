@@ -6,6 +6,10 @@ use ::datavec::DataVec;
 use std::ffi::{CString};
 use std::mem;
 use std::ops::Drop;
+use std::io::{Read,Write};
+
+use ::rustc_serialize::{Encodable,Decodable,Encoder,Decoder};
+use ::tempfile::NamedTempFile;
 
 /// An SVM Model is a trained Support Vector Machine, which can be used
 /// to query new problems. It manages all lifetimes and memory needed by itself in
@@ -220,6 +224,46 @@ impl<'a> SvmModel<'a> {
                 p
             }
         }
+    }
+}
+
+impl<'a> Encodable for SvmModel<'a> {
+    fn encode<S: Encoder>(&self, s: &mut S) -> Result<(), S::Error> {
+        let mut file = match NamedTempFile::new() {
+            Err(err) => { panic!(err); },
+            Ok(file) => file,
+        };
+
+        if !self.save(file.path().to_str().expect("Could not get file name of temp file")) {
+            panic!("Could not save model to temp file");
+        }
+
+        let mut buf = Vec::new();
+        if let Err(err) = file.read_to_end(&mut buf) {
+            panic!(err);
+        }
+
+        buf.encode(s)
+    }
+}
+
+impl<'a> Decodable for SvmModel<'a> {
+    fn decode<D: Decoder>(d: &mut D) -> Result<Self, D::Error> {
+        let buf = match Vec::<u8>::decode(d) {
+            Err(err) => { return Err(err); },
+            Ok(buf) => buf,
+        };
+
+        let mut file = match NamedTempFile::new() {
+            Err(err) => { panic!(err); },
+            Ok(file) => file,
+        };
+
+        if let Err(err) = file.write_all(buf.as_slice()) {
+            panic!(err);
+        }
+
+        Ok(SvmModel::load(file.path().to_str().expect("Could not get file name of temp file")))
     }
 }
 
