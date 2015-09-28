@@ -1,3 +1,5 @@
+#![feature(plugin)]
+#![plugin(clippy)]
 mod datavec;
 mod prob;
 mod ffi; 
@@ -14,6 +16,8 @@ pub use self::param::{SvmParameter,KernelParam,SvmTypeParam};
 #[repr(C)]
 pub struct SvmNode(pub i32, pub f64);
 
+/// This causes `libsvm` to not produce any output to stdout. This is a wrapper over
+/// `svm_set_print_string_function` with an internal `extern "C"` blank print function.
 pub fn squelch_output() {
 	unsafe {
 		svm_set_print_string_function(ffi::no_output);
@@ -21,7 +25,6 @@ pub fn squelch_output() {
 }
 
 mod test {
-
     #[test]
     fn make_it_link() {
 
