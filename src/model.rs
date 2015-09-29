@@ -7,6 +7,8 @@ use std::ffi::{CString};
 use std::mem;
 use std::ops::Drop;
 use std::io::{Read,Write};
+use std::fs;
+use std::fs::File;
 
 use ::rustc_serialize::{Encodable,Decodable,Encoder,Decoder};
 use ::tempfile::NamedTempFile;
@@ -227,19 +229,34 @@ impl<'a> SvmModel<'a> {
     }
 }
 
+/// This encodes by saving it to a named temp file and then reading THAT
+/// into a Vec<u8> and encoding it. This is probably a bad idea and you should
+/// probably use a raw `save` if at all possible.
 impl<'a> Encodable for SvmModel<'a> {
     fn encode<S: Encoder>(&self, s: &mut S) -> Result<(), S::Error> {
-        let mut file = match NamedTempFile::new() {
-            Err(err) => { panic!(err); },
-            Ok(file) => file,
+        // Get a tmp file path by just creating a temp file and getting its handle,
+        // then letting it get deleted.
+        let path= {
+            let file = match NamedTempFile::new() {
+                Err(err) => { panic!(err); },
+                Ok(file) => file,
+            };
+
+
+            file.path().to_path_buf()
         };
 
-        if !self.save(file.path().to_str().expect("Could not get file name of temp file")) {
+        if !self.save(path.to_str().expect("Could not get file name of temp file")) {
             panic!("Could not save model to temp file");
         }
 
+        let mut file = File::open(&path).expect("Could not open temp file");
         let mut buf = Vec::new();
         if let Err(err) = file.read_to_end(&mut buf) {
+            panic!(err);
+        }
+
+        if let Err(err) = fs::remove_file(path) {
             panic!(err);
         }
 
@@ -247,6 +264,10 @@ impl<'a> Encodable for SvmModel<'a> {
     }
 }
 
+/// This loads the serialized data and then writes it to a tmp file and
+/// tells libsvm to load a model from that file. This is probably a dumb idea
+/// and you should probably use a raw `load` from a `save`d file if
+/// possible.
 impl<'a> Decodable for SvmModel<'a> {
     fn decode<D: Decoder>(d: &mut D) -> Result<Self, D::Error> {
         let buf = match Vec::<u8>::decode(d) {
