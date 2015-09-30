@@ -184,9 +184,10 @@ impl<'a> SvmModel<'a> {
                                -> (f64, Vec<f64>) {
         let mut prob_estimates = match prob_estimates {
             None => {
-                let mut prob_estimates = Vec::with_capacity(test_vec.len());
+                let len = self.get_nr_class() as usize;
+                let mut prob_estimates = Vec::with_capacity(len);
                 unsafe {
-                    prob_estimates.set_len(test_vec.len());
+                    prob_estimates.set_len(len);
                 }
 
                 prob_estimates
