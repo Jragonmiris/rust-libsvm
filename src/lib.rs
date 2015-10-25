@@ -1,5 +1,6 @@
-#![feature(convert,plugin)]
-#![plugin(clippy)]
+#![feature(convert)]
+#![cfg_attr(feature="use_clippy", feature(plugin))]
+#![cfg_attr(feature="use_clippy", plugin(clippy))]
 extern crate rustc_serialize;
 extern crate tempfile;
 
